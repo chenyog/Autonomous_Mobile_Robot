@@ -50,9 +50,9 @@ class DWAConfig:
         self.predict_time = 1  # [s]
 
         self.heading_ratio = 1.0
-        self.close_ratio = 1.0*30
+        self.close_ratio = 1.0*35
         self.vel_ratio = 0.7*5
-        self.obs_ratio = 1.0*5
+        self.obs_ratio = 1.0*10
 
         self.min_dist = 0.1/4
         
