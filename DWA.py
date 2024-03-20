@@ -18,11 +18,28 @@ def KinematicsModel(state,vel,dt) :
     w = vel[1]
     # state_predict[0] = state[0] + v * dt * math.cos(theta) 
     # state_predict[1] = state[1] + v * dt * math.sin(theta)
-    state_predict[0] = state[0] - (v / w)*math.sin(theta) + (v / w) * math.sin(theta+w*dt) 
-    state_predict[1] = state[1] + (v / w)*math.cos(theta) - (v / w) * math.cos(theta+w*dt) 
+    if not (abs(w) <= 0.00001):
+        state_predict[0] = state[0] - (v / w)*math.sin(theta) + (v / w) * math.sin(theta+w*dt)
+        state_predict[1] = state[1] + (v / w)*math.cos(theta) - (v / w) * math.cos(theta+w*dt)
+    else:
+        state_predict[0] = state[0] + v*math.cos(theta)*dt
+        state_predict[1] = state[1] + v*math.sin(theta)*dt
     state_predict[2] = limit(theta + w*dt)
     state_predict[3] = v
     state_predict[4] = w
+    return state_predict
+
+def SimplifiedKinematicsModel(state,vel,dt):
+    state_predict = np.empty(5)
+    theta = state[2]
+    v = vel[0]
+    w = vel[1]
+    if not (abs(w) <= 0.00001):
+        state_predict[0] = state[0] - (v / w) * math.sin(theta) + (v / w) * math.sin(theta + w * dt)
+        state_predict[1] = state[1] + (v / w) * math.cos(theta) - (v / w) * math.cos(theta + w * dt)
+    else:
+        state_predict[0] = state[0] + v * math.cos(theta) * dt
+        state_predict[1] = state[1] + v * math.sin(theta) * dt
     return state_predict
 
 class DWAConfig:
@@ -54,7 +71,7 @@ class DWAConfig:
         self.vel_ratio = 0.7*5
         self.obs_ratio = 1.0*1
 
-        self.min_dist = 0
+        self.min_dist = 0.0
         
 class DWA:
     def __init__(self,config) :
@@ -163,7 +180,7 @@ class DWA:
                     #print(best_vw)
                 if G_min == float('inf'):
                     print("die of all G are die")
-                    if(state[3]<2.0):
+                    if(state[3]<100.0):
                         i = 0
                         index = 0
                         min_dis = float('inf')
@@ -178,16 +195,31 @@ class DWA:
                                 index = i
                             i = i+1
                         forward_FLAG = False
-                        if np.hypot(obstacle[index][0]-KinematicsModel(state,[0.0003,0.1],0.1)[0], KinematicsModel(state,[0.0003,0.1],0.1)[0])>min_dis:
+                        turning_clock_FLAG = False#顺时针，w>0
+                        if np.hypot(obstacle[index][0]-SimplifiedKinematicsModel(state,[0.00003,0.0],0.01)[0],obstacle[index][1] - SimplifiedKinematicsModel(state,[0.00003,0.0],0.01)[1])>min_dis:
                             forward_FLAG = True ##上面最好可以结合上角度，让逃逸更快
+                        if forward_FLAG:
+                            if np.hypot(obstacle[index][0]-SimplifiedKinematicsModel(state,[1.0,0.5],0.01)[0],obstacle[index][1] - SimplifiedKinematicsModel(state,[1.0,0.5],0.01)[1])>np.hypot(obstacle[index][0]-SimplifiedKinematicsModel(state,[1.0,0.5],0.01)[0],obstacle[index][1] - SimplifiedKinematicsModel(state,[1.0,0.5],0.01)[1]):
+                                turning_clock_FLAG = True
+                        else:
+                            if np.hypot(obstacle[index][0]-SimplifiedKinematicsModel(state,[-1.0,0.5],0.01)[0], obstacle[index][1] - SimplifiedKinematicsModel(state,[-1.0,0.5],0.01)[1])>np.hypot(obstacle[index][0]-SimplifiedKinematicsModel(state,[-1.0,0.5],0.01)[0],obstacle[index][1] - SimplifiedKinematicsModel(state,[-1.0,0.5],0.01)[1]):
+                                turning_clock_FLAG = True
                         print(forward_FLAG)
                         print(min_dis)
                         if forward_FLAG:
-                            best_vw = np.array([1.0, 0.5])
-                            best_traj = self.traj_predict(state, 1.0, 0.1)
+                            if turning_clock_FLAG:
+                                best_vw = np.array([1.0, 0.5])
+                                best_traj = self.traj_predict(state, 1.0, 0.5)
+                            else:
+                                best_vw = np.array([1.0, -0.5])
+                                best_traj = self.traj_predict(state, 1.0, -0.5)
                         else:
-                            best_vw = np.array([-1.0, 0.5])
-                            best_traj = self.traj_predict(state, -1.0, 0.1)
+                            if turning_clock_FLAG:
+                                best_vw = np.array([-1.0, 0.5])
+                                best_traj = self.traj_predict(state, -1.0, 0.5)
+                            else:
+                                best_vw = np.array([-1.0, -0.5])
+                                best_traj = self.traj_predict(state, -1.0, -0.5)
                     else:
                         best_vw = np.array([-state[3],state[4]])
                         best_traj = self.traj_predict(state, -state[3], state[4])
