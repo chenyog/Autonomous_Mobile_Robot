@@ -19,7 +19,7 @@ def get_obstacle_list(vision) :
 	return obstacle_list
 这个函数修改了，保存一下
 '''
-VITURAL_RADIUS = 300
+VITURAL_RADIUS = 250
 
 def obstacle_change(vision,last_obstacle_list) :
 	new_obstacle_list = get_obstacle_list(vision)
@@ -138,7 +138,7 @@ if __name__ == '__main__':
 				debugger.draw_line(package,mypath[i][0]*rate,mypath[i][1]*rate,mypath[i+1][0]*rate,mypath[i+1][1]*rate,color=Debug_Msg.GREEN)
 		for i in range(len(traj) - 1):
 			debugger.draw_line(package, traj[i,0]*rate, traj[i,1]*rate, traj[i+1,0]*rate, traj[i+1,1]*rate, color=Debug_Msg.RED)
-		debugger.draw_circle(package, goal[0] * rate, goal[1] * rate,color=Debug_Msg.BLUE)
+		debugger.draw_circle(package, goal[0] * rate, goal[1] * rate,radius=100,color=Debug_Msg.BLUE)
 		estimate_time = 3
 		estimate_step = 0.3
 		for item in obstacle_list:

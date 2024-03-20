@@ -163,12 +163,35 @@ class DWA:
                     #print(best_vw)
                 if G_min == float('inf'):
                     print("die of all G are die")
-                    if(state[3]<0.01):
-                        best_vw = np.array([-1.0, 0.5])
-                        best_traj = self.traj_predict(state, -0.3, 0.5)
+                    if(state[3]<2.0):
+                        i = 0
+                        index = 0
+                        min_dis = float('inf')
+                        for obs in obstacle:
+                            ox_t = obs[0]
+                            oy_t = obs[1]
+                            rx = state[0]
+                            ry = state[1]
+                            dis_t = np.hypot(ox_t-rx, oy_t-ry)
+                            if dis_t < min_dis:
+                                min_dis = dis_t
+                                index = i
+                            i = i+1
+                        forward_FLAG = False
+                        if np.hypot(obstacle[index][0]-KinematicsModel(state,[0.0003,0.1],0.1)[0], KinematicsModel(state,[0.0003,0.1],0.1)[0])>min_dis:
+                            forward_FLAG = True ##上面最好可以结合上角度，让逃逸更快
+                        print(forward_FLAG)
+                        print(min_dis)
+                        if forward_FLAG:
+                            best_vw = np.array([1.0, 0.5])
+                            best_traj = self.traj_predict(state, 1.0, 0.1)
+                        else:
+                            best_vw = np.array([-1.0, 0.5])
+                            best_traj = self.traj_predict(state, -1.0, 0.1)
                     else:
                         best_vw = np.array([-state[3],state[4]])
                         best_traj = self.traj_predict(state, -state[3], state[4])
+
                     #exit()
                 evaluation.append(cur_eval)
                 traj.append(trajectory)
