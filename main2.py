@@ -9,7 +9,6 @@ import math
 from rrt import RRT
 import DWA
 
-import random
 '''
 def get_obstacle_list(vision) :
 	robot_list = []
@@ -66,6 +65,7 @@ if __name__ == '__main__':
 	rrt = None
 	traj = []
 	time.sleep(1)
+	stay_time = 0.0
 	while True:
 		robot_x = vision.my_robot.x / rate
 		robot_y = vision.my_robot.y / rate
@@ -107,14 +107,19 @@ if __name__ == '__main__':
 				and min_distance[1] < goal_point_index) :
 			goal_point_index = min_distance[1]
 			goal = mypath[goal_point_index]
-		if goal_point_index >0 and random.random() < 0.1:
+		if goal_point_index > 0 and abs(vision.my_robot.raw_vel_x + vision.my_robot.raw_vel_y) < 0.001:
+			stay_time += 1.0
+		if goal_point_index>0 and stay_time >= 24:
+			stay_time = 0.0
 			goal_point_index -= 1
-		if distance_to_choice < 0.8 :	#步长70-》0.07
+			goal = mypath[goal_point_index]
+		if distance_to_choice < 0.8 :	#步长70->0.07
 			if goal_point_index > 0 :
 				goal_point_index -= 1
 				goal = mypath[goal_point_index]
 			elif goal_point_index == 0 :
 				goal = mypath[goal_point_index]
+				stay_time = 0.0
 				if math.hypot(vision.my_robot.x--2400,vision.my_robot.y--1500)<50 or math.hypot(vision.my_robot.x-2400,vision.my_robot.y-1500)<50:
 					mypath.reverse()
 					goal_point_index = len(mypath) - 4

@@ -140,13 +140,13 @@ class RRT:
                 (ox, oy, radius,vx,vy) = item
                 for i in range(estilimate_time):
                     dd = self.distance_squared_point_to_segment(
-                        np.array([x1, y1]),
-                        np.array([x2, y2]),
-                        np.array([ox + i*vx, oy+i*vy])
-                    )
-                    if dd <= radius ** 2:
-                        return False
-            return True
+                    np.array([x1, y1]),
+                    np.array([x2, y2]),
+                    np.array([ox, oy])
+                )
+                if dd <= radius ** 2:
+                    return False
+        return True
 
     @staticmethod
     def distance_squared_point_to_segment(v, w, p):
