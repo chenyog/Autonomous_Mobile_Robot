@@ -9,10 +9,10 @@ class Debugger(object):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.debug_address = ('localhost', 20001)
 
-    def draw_circle(self, package, x, y, radius=300):
+    def draw_circle(self, package, x, y, radius=300,color = Debug_Msg.WHITE):
         msg = package.msgs.add()
         msg.type = Debug_Msg.ARC
-        msg.color = Debug_Msg.WHITE
+        msg.color = color
         arc = msg.arc
         arc.rectangle.point1.x = x - radius
         arc.rectangle.point1.y = y - radius

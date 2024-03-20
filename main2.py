@@ -19,7 +19,7 @@ def get_obstacle_list(vision) :
 	return obstacle_list
 这个函数修改了，保存一下
 '''
-
+VITURAL_RADIUS = 300
 
 def obstacle_change(vision,last_obstacle_list) :
 	new_obstacle_list = get_obstacle_list(vision)
@@ -29,10 +29,11 @@ def obstacle_change(vision,last_obstacle_list) :
 	return False
 
 def get_obstacle_list(vision) :
+	global VITURAL_RADIUS
 	robot_list = []
 	for i in range(16) :
 		robot_list.append(vision.yellow_robot[i]) 
-	obstacle_list = [(robot.x,robot.y,180,0 if abs(robot.raw_vel_x) < 0.0001 else robot.raw_vel_x,0 if abs(robot.raw_vel_y) < 0.0001 else robot.raw_vel_y) for robot in robot_list]
+	obstacle_list = [(robot.x,robot.y,VITURAL_RADIUS,0 if abs(robot.raw_vel_x) < 0.0001 else robot.raw_vel_x,0 if abs(robot.raw_vel_y) < 0.0001 else robot.raw_vel_y) for robot in robot_list]
 	return obstacle_list
 def find_way(rand_area,obstacle_list,start,goal) :
 	path = None
@@ -137,13 +138,13 @@ if __name__ == '__main__':
 				debugger.draw_line(package,mypath[i][0]*rate,mypath[i][1]*rate,mypath[i+1][0]*rate,mypath[i+1][1]*rate,color=Debug_Msg.GREEN)
 		for i in range(len(traj) - 1):
 			debugger.draw_line(package, traj[i,0]*rate, traj[i,1]*rate, traj[i+1,0]*rate, traj[i+1,1]*rate, color=Debug_Msg.RED)
-		debugger.draw_circle(package, goal[0] * rate, goal[1] * rate)
-		estimate_time = 5
+		debugger.draw_circle(package, goal[0] * rate, goal[1] * rate,color=Debug_Msg.BLUE)
+		estimate_time = 3
 		estimate_step = 0.3
 		for item in obstacle_list:
 			if len(item>3):
 				for i in range(estimate_time):
-					debugger.draw_circle(package, item[0]*rate+item[3]*i*rate*estimate_step, item[1] * rate++item[4]*i*rate*estimate_step)
+					debugger.draw_circle(package, item[0]*rate+item[3]*i*rate*estimate_step, item[1] * rate++item[4]*i*rate*estimate_step,VITURAL_RADIUS)
 		debugger.send(package)
 
 		time.sleep(0.01)

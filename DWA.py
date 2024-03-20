@@ -34,7 +34,7 @@ class DWAConfig:
         # robot parameter
 
         self.v_max =  1.0 # [m/s]
-        self.v_min = -0.5  # [m/s]
+        self.v_min = -1.0  # [m/s]
 
         self.w_max = 0.5 * math.pi  # [rad/s]
         self.w_min = -0.5 * math.pi  # [rad/s]
@@ -50,11 +50,11 @@ class DWAConfig:
         self.predict_time = 1  # [s]
 
         self.heading_ratio = 1.0
-        self.close_ratio = 1.0*35
+        self.close_ratio = 1.0*50
         self.vel_ratio = 0.7*5
-        self.obs_ratio = 1.0*10
+        self.obs_ratio = 1.0*1
 
-        self.min_dist = 0.1/4
+        self.min_dist = 0
         
 class DWA:
     def __init__(self,config) :
@@ -164,7 +164,7 @@ class DWA:
                 if G_min == float('inf'):
                     print("die of all G are die")
                     if(state[3]<0.01):
-                        best_vw = np.array([-0.3, 0.5])
+                        best_vw = np.array([-1.0, 0.5])
                         best_traj = self.traj_predict(state, -0.3, 0.5)
                     else:
                         best_vw = np.array([-state[3],state[4]])
@@ -219,7 +219,7 @@ class DWA:
             d = obstacle[:, 2]
             vx = obstacle[:, 3]*1000*0.3#rate and estimate_step
             vy = obstacle[:, 4]*1000*0.3
-            estimate_time = 4
+            estimate_time = 2
             #print("ox is"+str(ox) + '\n')
             #print("vx is" + str(vx))
             #
